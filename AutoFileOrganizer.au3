@@ -1,5 +1,6 @@
 #include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
+#include "File.au3" ; Include the File.au3 UDF
 
 Example()
 
