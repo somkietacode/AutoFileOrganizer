@@ -1,6 +1,5 @@
 #include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
-#include "File.au3" ; Include the File.au3 UDF
 
 Example()
 
@@ -22,24 +21,35 @@ Func Example()
     ; Create the destination subfolders for different file types
     CreateSubfolders($destinationFolder)
 
-    ; Get a list of files in the source folder
-    Local $fileList = FileListToArray($sourceFolder, "*")
+    ; Find the first file in the source folder
+    Local $fileHandle = FileFindFirstFile($sourceFolder & "\*.*")
+    ; Check if the search was successful
+    If $fileHandle = -1 Then
+        MsgBox($MB_ICONERROR, "Error", "No files found in the source folder. Exiting.")
+        Exit
+    EndIf
 
     ; Move files to their respective subfolders
-    For $i = 1 To $fileList[0]
-        Local $filePath = $sourceFolder & "\" & $fileList[$i]
-        Local $fileExtension = StringLower(StringRegExpReplace($fileList[$i], ".*\.(.*)", "$1"))
+    While 1
+        Local $file = FileFindNextFile($fileHandle)
+        If @error Then ExitLoop ; Exit the loop if no more files are found
+
+        Local $filePath = $sourceFolder & "\" & $file
+        Local $fileExtension = StringLower(StringRegExpReplace($file, ".*\.(.*)", "$1"))
 
         ; Check if the file is not a directory and has a valid extension
         If Not FileIsDir($filePath) And $fileExtension <> "" Then
             Local $destinationSubfolder = $destinationFolder & "\" & $fileExtension
-            If FileMove($filePath, $destinationSubfolder & "\" & $fileList[$i], $FC_OVERWRITE) Then
-                ConsoleWrite("Moved: " & $filePath & " -> " & $destinationSubfolder & "\" & $fileList[$i] & @CRLF)
+            If FileMove($filePath, $destinationSubfolder & "\" & $file, $FC_OVERWRITE) Then
+                ConsoleWrite("Moved: " & $filePath & " -> " & $destinationSubfolder & "\" & $file & @CRLF)
             Else
                 ConsoleWrite("Error moving: " & $filePath & @CRLF)
             EndIf
         EndIf
-    Next
+    WEnd
+
+    ; Close the file handle
+    FileClose($fileHandle)
 
     MsgBox($MB_ICONINFORMATION, "Done", "Files organized successfully!")
 EndFunc   ;==>Example
