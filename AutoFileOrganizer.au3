@@ -23,7 +23,7 @@ Func Example()
     CreateSubfolders($destinationFolder)
 
     ; Get a list of files in the source folder
-    Local $fileList = _FileListToArray($sourceFolder, "*")
+    Local $fileList = FileListToArray($sourceFolder, "*")
 
     ; Move files to their respective subfolders
     For $i = 1 To $fileList[0]
